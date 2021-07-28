@@ -4,11 +4,16 @@ import (
 	"HelloWorld-gokit-mongodb/api"
 	"HelloWorld-gokit-mongodb/db"
 	"HelloWorld-gokit-mongodb/db/mongodb"
+	"context"
 	"flag"
+	"fmt"
 	corelog "log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
-	httpTransport "github.com/go-kit/kit/transport/http"
+	"github.com/go-kit/kit/log"
 )
 
 var (
@@ -25,6 +30,8 @@ func init() {
 }
 
 func main() {
+	ctx := context.Background()
+	errChan := make(chan error)
 
 	dbconn := false
 	for !dbconn {
@@ -45,17 +52,46 @@ func main() {
 	userGet := api.MakeUserGetEndpoint(s)
 	delete := api.MakeDeleteEndpoint(s)
 
-	healthServer := httpTransport.NewServer(health, api.HealthDecodeRequest, api.HealthEncodeResponse)
+	endpoints := api.Endpoints{
+		HealthEndpoint:   health,
+		RegisterEndpoint: regist,
+		UserGetEndpoint:  userGet,
+		DeleteEndpoint:   delete,
+	}
+	var logger log.Logger
+	{
+		logger = log.NewLogfmtLogger(os.Stderr)
+		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
+		logger = log.With(logger, "caller", log.DefaultCaller)
+	}
 
-	registServer := httpTransport.NewServer(regist, api.DecodeRegisterRequest, api.EncodeResponse)
-	userGetServer := httpTransport.NewServer(userGet, api.DecodeGetRequest, api.EncodeResponse)
-	deleteServer := httpTransport.NewServer(delete, api.DecodeDeleteRequest, api.EncodeResponse)
+	r := api.MakeHttpHandler(ctx, endpoints, logger)
 
-	http.Handle("/regist/", registServer)
-	http.Handle("/userget/", userGetServer)
-	http.Handle("/delete/", deleteServer)
-	http.Handle("/health", healthServer)
-	go http.ListenAndServe("0.0.0.0:8084", nil)
+	go func() {
+		fmt.Println("Http Server start at port:8084")
+		handler := r
+		errChan <- http.ListenAndServe(":8084", handler)
+	}()
 
-	select {}
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+		errChan <- fmt.Errorf("%s", <-c)
+	}()
+
+	fmt.Println(<-errChan)
+
+	// healthServer := httpTransport.NewServer(health, api.HealthDecodeRequest, api.HealthEncodeResponse)
+
+	// registServer := httpTransport.NewServer(regist, api.DecodeRegisterRequest, api.EncodeResponse)
+	// userGetServer := httpTransport.NewServer(userGet, api.DecodeUserRequest, api.EncodeResponse)
+	// deleteServer := httpTransport.NewServer(delete, api.DecodeDeleteRequest, api.EncodeResponse)
+
+	// http.Handle("/regist/", registServer)
+	// http.Handle("/userget/", userGetServer)
+	// http.Handle("/delete/", deleteServer)
+	// http.Handle("/health", healthServer)
+	// go http.ListenAndServe("0.0.0.0:8084", nil)
+
+	// select {}
 }

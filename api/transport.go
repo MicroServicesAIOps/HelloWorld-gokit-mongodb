@@ -8,11 +8,47 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	kithttp "github.com/go-kit/kit/transport/http"
+
+	"github.com/go-kit/kit/log"
+	"github.com/gorilla/mux"
 )
 
 var (
 	ErrInvalidRequest = errors.New("Invalid request")
 )
+
+// MakeHttpHandler make http handler use mux
+func MakeHttpHandler(ctx context.Context, endpoints Endpoints, logger log.Logger) http.Handler {
+	r := mux.NewRouter()
+
+	options := []kithttp.ServerOption{
+		kithttp.ServerErrorLogger(logger),
+		kithttp.ServerErrorEncoder(kithttp.DefaultErrorEncoder),
+	}
+	r.Methods("GET").PathPrefix("/health").Handler(kithttp.NewServer(
+		endpoints.HealthEndpoint,
+		HealthDecodeRequest,
+		HealthEncodeResponse,
+		options...,
+	))
+
+	// r.Methods("GET").Path(`/user/{userId}`).Handler(kithttp.NewServer(
+	// 	endpoints.GetUserNameEndpoint,
+	// 	decodeGetUserNameRequest,
+	// 	encodeGetUserNameResponse,
+	// 	options...,
+	// ))
+	// r.Methods("POST").Path(`/user/{userId}/{userName}`).Handler(kithttp.NewServer(
+	// 	endpoints.UpdateUserNameEndpoint,
+	// 	decodeUpdateUserNameRequest,
+	// 	encodeUpdateUserNameResponse,
+	// 	options...,
+	// ))
+
+	return r
+}
 
 func EncodeError(c context.Context, err error, w http.ResponseWriter) {
 	code := http.StatusInternalServerError

@@ -8,6 +8,13 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
+type Endpoints struct {
+	HealthEndpoint   endpoint.Endpoint
+	RegisterEndpoint endpoint.Endpoint
+	UserGetEndpoint  endpoint.Endpoint
+	DeleteEndpoint   endpoint.Endpoint
+}
+
 type GetRequest struct {
 	ID   string
 	Attr string
