@@ -28,6 +28,7 @@ func EncodeError(c context.Context, err error, w http.ResponseWriter) {
 func DecodeRegisterRequest(c context.Context, r *http.Request) (interface{}, error) {
 	reg := registerRequest{}
 	err := json.NewDecoder(r.Body).Decode(&reg)
+	fmt.Println(r)
 	fmt.Println(reg)
 	if err != nil {
 		return nil, err
