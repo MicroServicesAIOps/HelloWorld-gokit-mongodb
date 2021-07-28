@@ -12,7 +12,6 @@ import (
 type IMyService interface {
 	Register(username, password, email string) (string, error)
 	GetUsers(id string) ([]users.User, error)
-	Delete(entity, id string) error
 	Health() []Health // GET /health
 }
 
@@ -40,10 +39,6 @@ func (s MyService) GetUsers(id string) ([]users.User, error) {
 	}
 	u, err := db.GetUsers()
 	return u, err
-}
-
-func (s MyService) Delete(entity, id string) error {
-	return db.Delete(entity, id)
 }
 
 func (s MyService) Health() []Health {

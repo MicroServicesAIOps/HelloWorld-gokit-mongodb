@@ -51,18 +51,14 @@ func (m *Mongo) Init() error {
 // MongoUser is a wrapper for the users
 type MongoUser struct {
 	users.User `bson:",inline"`
-	ID         bson.ObjectId   `bson:"_id"`
-	AddressIDs []bson.ObjectId `bson:"addresses"`
-	CardIDs    []bson.ObjectId `bson:"cards"`
+	ID         bson.ObjectId `bson:"_id"`
 }
 
 // New Returns a new MongoUser
 func New() MongoUser {
 	u := users.New()
 	return MongoUser{
-		User:       u,
-		AddressIDs: make([]bson.ObjectId, 0),
-		CardIDs:    make([]bson.ObjectId, 0),
+		User: u,
 	}
 }
 

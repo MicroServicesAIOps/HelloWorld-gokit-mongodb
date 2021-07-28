@@ -12,17 +12,11 @@ type Endpoints struct {
 	HealthEndpoint   endpoint.Endpoint
 	RegisterEndpoint endpoint.Endpoint
 	UserGetEndpoint  endpoint.Endpoint
-	DeleteEndpoint   endpoint.Endpoint
 }
 
 type GetRequest struct {
 	ID   string
 	Attr string
-}
-
-type loginRequest struct {
-	Username string
-	Password string
 }
 
 type userResponse struct {
@@ -45,11 +39,6 @@ type statusResponse struct {
 
 type postResponse struct {
 	ID string `json:"id"`
-}
-
-type deleteRequest struct {
-	Entity string
-	ID     string
 }
 
 type healthRequest struct {
@@ -90,20 +79,6 @@ func MakeUserGetEndpoint(s IMyService) endpoint.Endpoint {
 	}
 }
 
-// MakeLoginEndpoint returns an endpoint via the given service.
-func MakeDeleteEndpoint(s IMyService) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-
-		req := request.(deleteRequest)
-		err = s.Delete(req.Entity, req.ID)
-		if err == nil {
-			return statusResponse{Status: true}, err
-		}
-		return statusResponse{Status: false}, err
-	}
-}
-
-// MakeHealthEndpoint returns current health of the given service.
 func MakeHealthEndpoint(s IMyService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		health := s.Health()

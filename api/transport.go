@@ -11,7 +11,6 @@ import (
 
 	kithttp "github.com/go-kit/kit/transport/http"
 
-	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
 )
 
@@ -20,11 +19,10 @@ var (
 )
 
 // MakeHttpHandler make http handler use mux
-func MakeHttpHandler(ctx context.Context, endpoints Endpoints, logger log.Logger) http.Handler {
+func MakeHttpHandler(ctx context.Context, endpoints Endpoints) http.Handler {
 	r := mux.NewRouter()
 
 	options := []kithttp.ServerOption{
-		kithttp.ServerErrorLogger(logger),
 		kithttp.ServerErrorEncoder(kithttp.DefaultErrorEncoder),
 	}
 	r.Methods("GET").PathPrefix("/health").Handler(kithttp.NewServer(
@@ -46,19 +44,6 @@ func MakeHttpHandler(ctx context.Context, endpoints Endpoints, logger log.Logger
 		EncodeResponse,
 		options...,
 	))
-	// r.Methods("GET").Path(`/user/{userId}`).Handler(kithttp.NewServer(
-	// 	endpoints.GetUserNameEndpoint,
-	// 	decodeGetUserNameRequest,
-	// 	encodeGetUserNameResponse,
-	// 	options...,
-	// ))
-	// r.Methods("POST").Path(`/user/{userId}/{userName}`).Handler(kithttp.NewServer(
-	// 	endpoints.UpdateUserNameEndpoint,
-	// 	decodeUpdateUserNameRequest,
-	// 	encodeUpdateUserNameResponse,
-	// 	options...,
-	// ))
-
 	return r
 }
 
@@ -84,17 +69,6 @@ func DecodeRegisterRequest(c context.Context, r *http.Request) (interface{}, err
 		return nil, err
 	}
 	return reg, nil
-}
-
-func DecodeDeleteRequest(c context.Context, r *http.Request) (interface{}, error) {
-	d := deleteRequest{}
-	u := strings.Split(r.URL.Path, "/")
-	if len(u) == 3 {
-		d.Entity = u[1]
-		d.ID = u[2]
-		return d, nil
-	}
-	return d, ErrInvalidRequest
 }
 
 func DecodeGetRequest(c context.Context, r *http.Request) (interface{}, error) {

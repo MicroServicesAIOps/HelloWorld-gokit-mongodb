@@ -12,8 +12,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/go-kit/kit/log"
 )
 
 var (
@@ -50,27 +48,19 @@ func main() {
 	health := api.MakeHealthEndpoint(s)
 	regist := api.MakeRegisterEndpoint(s)
 	userGet := api.MakeUserGetEndpoint(s)
-	delete := api.MakeDeleteEndpoint(s)
 
 	endpoints := api.Endpoints{
 		HealthEndpoint:   health,
 		RegisterEndpoint: regist,
 		UserGetEndpoint:  userGet,
-		DeleteEndpoint:   delete,
-	}
-	var logger log.Logger
-	{
-		logger = log.NewLogfmtLogger(os.Stderr)
-		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
-		logger = log.With(logger, "caller", log.DefaultCaller)
 	}
 
-	r := api.MakeHttpHandler(ctx, endpoints, logger)
+	r := api.MakeHttpHandler(ctx, endpoints)
 
 	go func() {
-		fmt.Println("Http Server start at port:8084")
+		fmt.Println("Http Server start")
 		handler := r
-		errChan <- http.ListenAndServe(":8084", handler)
+		errChan <- http.ListenAndServe(fmt.Sprintf(":%v", port), handler)
 	}()
 
 	go func() {
@@ -80,18 +70,4 @@ func main() {
 	}()
 
 	fmt.Println(<-errChan)
-
-	// healthServer := httpTransport.NewServer(health, api.HealthDecodeRequest, api.HealthEncodeResponse)
-
-	// registServer := httpTransport.NewServer(regist, api.DecodeRegisterRequest, api.EncodeResponse)
-	// userGetServer := httpTransport.NewServer(userGet, api.DecodeUserRequest, api.EncodeResponse)
-	// deleteServer := httpTransport.NewServer(delete, api.DecodeDeleteRequest, api.EncodeResponse)
-
-	// http.Handle("/regist/", registServer)
-	// http.Handle("/userget/", userGetServer)
-	// http.Handle("/delete/", deleteServer)
-	// http.Handle("/health", healthServer)
-	// go http.ListenAndServe("0.0.0.0:8084", nil)
-
-	// select {}
 }
