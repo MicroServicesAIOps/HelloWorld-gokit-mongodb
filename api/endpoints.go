@@ -72,17 +72,16 @@ func MakeUserGetEndpoint(s IMyService) endpoint.Endpoint {
 
 		req := request.(GetRequest)
 		fmt.Print(req)
-		// usrs, err := s.GetUsers(req.ID)
+		usrs, err := s.GetUsers(req.ID)
 
-		// if req.ID == "" {
-		// 	return EmbedStruct{usersResponse{Users: usrs}}, err
-		// }
-		// if len(usrs) == 0 {
-		// 	return users.User{}, err
-		// }
-		// user := usrs[0]
-		//return user, err
-		return statusResponse{Status: false}, err
+		if req.ID == "" {
+			return EmbedStruct{usersResponse{Users: usrs}}, err
+		}
+		if len(usrs) == 0 {
+			return users.User{}, err
+		}
+		user := usrs[0]
+		return user, err
 	}
 }
 
