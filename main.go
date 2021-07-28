@@ -5,12 +5,10 @@ import (
 	"HelloWorld-gokit-mongodb/db"
 	"HelloWorld-gokit-mongodb/db/mongodb"
 	"flag"
-	"fmt"
 	corelog "log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
+
+	httpTransport "github.com/go-kit/kit/transport/http"
 )
 
 var (
@@ -27,9 +25,6 @@ func init() {
 }
 
 func main() {
-	flag.Parse()
-
-	errc := make(chan error)
 
 	dbconn := false
 	for !dbconn {
@@ -44,27 +39,23 @@ func main() {
 		}
 	}
 
-	// Service domain.
-	var service api.Service
-	{
-		service = api.NewFixedService()
-	}
+	s := api.MyService{}
+	health := api.MakeHealthEndpoint(s)
+	regist := api.MakeRegisterEndpoint(s)
+	userGet := api.MakeUserGetEndpoint(s)
+	delete := api.MakeDeleteEndpoint(s)
 
-	// Endpoint domain.
-	endpoints := api.MakeEndpoints(service)
+	healthServer := httpTransport.NewServer(health, api.HealthDecodeRequest, api.HealthEncodeResponse)
 
-	// HTTP router
-	handler := api.MakeHTTPHandler(endpoints)
+	registServer := httpTransport.NewServer(regist, api.DecodeRegisterRequest, api.EncodeResponse)
+	userGetServer := httpTransport.NewServer(userGet, api.DecodeGetRequest, api.EncodeResponse)
+	deleteServer := httpTransport.NewServer(delete, api.DecodeDeleteRequest, api.EncodeResponse)
 
-	// Create and launch the HTTP server.
-	go func() {
-		errc <- http.ListenAndServe(fmt.Sprintf(":%v", port), handler)
-	}()
+	http.Handle("/regist/", registServer)
+	http.Handle("/userget/", userGetServer)
+	http.Handle("/delete/", deleteServer)
+	http.Handle("/health", healthServer)
+	go http.ListenAndServe("0.0.0.0:8084", nil)
 
-	// Capture interrupts.
-	go func() {
-		c := make(chan os.Signal)
-		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
-		errc <- fmt.Errorf("%s", <-c)
-	}()
+	select {}
 }

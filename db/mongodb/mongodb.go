@@ -4,6 +4,7 @@ import (
 	"HelloWorld-gokit-mongodb/users"
 	"errors"
 	"flag"
+	"fmt"
 	"net/url"
 	"os"
 	"time"
@@ -25,6 +26,9 @@ func init() {
 	flag.StringVar(&name, "mongo-user", os.Getenv("MONGO_USER"), "Mongo user")
 	flag.StringVar(&password, "mongo-password", os.Getenv("MONGO_PASS"), "Mongo password")
 	flag.StringVar(&host, "mongo-host", os.Getenv("MONGO_HOST"), "Mongo host")
+	fmt.Println(name)
+	fmt.Println(password)
+	fmt.Println(host)
 }
 
 // Mongo meets the Database interface requirements
