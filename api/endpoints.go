@@ -27,11 +27,9 @@ type usersResponse struct {
 }
 
 type registerRequest struct {
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	Email     string `json:"email"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
 }
 
 type statusResponse struct {
@@ -62,7 +60,7 @@ type EmbedStruct struct {
 func MakeRegisterEndpoint(s IMyService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(registerRequest)
-		id, err := s.Register(req.Username, req.Password, req.Email, req.FirstName, req.LastName)
+		id, err := s.Register(req.Username, req.Password, req.Email)
 		return postResponse{ID: id}, err
 	}
 }

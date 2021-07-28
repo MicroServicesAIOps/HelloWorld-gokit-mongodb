@@ -10,7 +10,7 @@ import (
 )
 
 type IMyService interface {
-	Register(username, password, email, first, last string) (string, error)
+	Register(username, password, email string) (string, error)
 	GetUsers(id string) ([]users.User, error)
 	Delete(entity, id string) error
 	Health() []Health // GET /health
@@ -24,13 +24,11 @@ type Health struct {
 	Time    string `json:"time"`
 }
 
-func (s MyService) Register(username, password, email, first, last string) (string, error) {
+func (s MyService) Register(username, password, email string) (string, error) {
 	u := users.New()
 	u.Username = username
 	u.Password = calculatePassHash(password, u.Salt)
 	u.Email = email
-	u.FirstName = first
-	u.LastName = last
 	err := db.CreateUser(&u)
 	return u.UserID, err
 }
