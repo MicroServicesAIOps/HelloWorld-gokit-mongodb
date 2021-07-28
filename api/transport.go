@@ -33,7 +33,7 @@ func MakeHttpHandler(ctx context.Context, endpoints Endpoints, logger log.Logger
 		HealthEncodeResponse,
 		options...,
 	))
-	r.Methods("GET").PathPrefix("/customers").Handler(kithttp.NewServer(
+	r.Methods("GET").PathPrefix("/users").Handler(kithttp.NewServer(
 		endpoints.UserGetEndpoint,
 		DecodeGetRequest,
 		EncodeResponse,
