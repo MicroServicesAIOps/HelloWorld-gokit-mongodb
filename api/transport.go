@@ -29,6 +29,8 @@ func DecodeRegisterRequest(c context.Context, r *http.Request) (interface{}, err
 	reg := registerRequest{}
 	err := json.NewDecoder(r.Body).Decode(&reg)
 	fmt.Println(r)
+	fmt.Println(r.Method)
+	fmt.Println(r.Body)
 	fmt.Println(reg)
 	if err != nil {
 		return nil, err
