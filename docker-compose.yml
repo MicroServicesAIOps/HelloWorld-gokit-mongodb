@@ -16,7 +16,7 @@ services:
             - MONGO_HOST=userdb:27017
             - reschedule=on-node-failure
         ports:
-            - "8080:80"
+            - "8080:8084"
     user-db:
         build:
             context: ./docker/userdb/
