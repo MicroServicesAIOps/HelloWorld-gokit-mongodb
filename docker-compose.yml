@@ -4,7 +4,7 @@ services:
     user:
         build:
             context: .
-        image: go-mongodb-demo/user
+        image: go-mongodb-demo/user:v1
         hostname: user
         restart: always
         cap_drop:
@@ -20,7 +20,7 @@ services:
     user-db:
         build:
             context: ./docker/userdb/
-        image: go-mongodb-demo/userdb
+        image: go-mongodb-demo/userdb:v1
         hostname: userdb
         restart: always
         cap_drop:

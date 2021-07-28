@@ -59,6 +59,7 @@ func main() {
 
 	go func() {
 		fmt.Println("Http Server start")
+		fmt.Println(port)
 		handler := r
 		errChan <- http.ListenAndServe(fmt.Sprintf(":%v", port), handler)
 	}()

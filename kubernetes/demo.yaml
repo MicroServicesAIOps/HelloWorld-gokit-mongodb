@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: user
-        image: go-mongodb-demo/user
+        image: go-mongodb-demo/user:v1
         resources:
           limits:
             cpu: 300m
@@ -32,9 +32,9 @@ spec:
             cpu: 100m
             memory: 100Mi
         ports:
-        - containerPort: 80
+        - containerPort: 8084
         env:
-        - name: mongo
+        - name: MONGO_HOST
           value: userdb:27017
         securityContext:
           runAsNonRoot: true
@@ -73,7 +73,7 @@ spec:
   ports:
     # the port that this service should serve on
   - port: 80
-    targetPort: 8084
+    targetPort: 80
   selector:
     name: user
 
@@ -97,7 +97,7 @@ spec:
     spec:
       containers:
       - name: userdb
-        image: go-mongodb-demo/userdb
+        image: go-mongodb-demo/userdb:v1
 
         ports:
         - name: mongo
