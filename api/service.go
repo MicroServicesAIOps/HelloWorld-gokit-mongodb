@@ -38,8 +38,8 @@ func (s MyService) GetUsers(id string) ([]users.User, error) {
 		us, err := db.GetUsers()
 		return us, err
 	}
-	u, err := db.GetUser(id)
-	return []users.User{u}, err
+	u, err := db.GetUsers()
+	return u, err
 }
 
 func (s MyService) Delete(entity, id string) error {
